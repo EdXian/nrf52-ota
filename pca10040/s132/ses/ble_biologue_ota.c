@@ -62,12 +62,14 @@ uint8_t ota_check_key(void){
 }
 
 
-void ota_flash_write(uint32_t addr, uint8_t* buffer, uint32_t recv_len){
-    nrf_fstorage_write(&fstorage, addr, buffer, recv_len, NULL);
+uint8_t ota_flash_write(uint32_t addr, uint8_t* buffer, uint32_t recv_len){
+   uint8_t ret = 0;
+    ret = nrf_fstorage_write(&fstorage, addr, buffer, recv_len, NULL);
     wait_for_flash_ready(&fstorage);
+    return ret;
 }
 
-void ota_flash_erase(uint32_t start_addr, uint32_t end_addr){
+uint8_t ota_flash_erase(uint32_t start_addr, uint32_t end_addr){
     ret_code_t ret ;//= nrf_fstorage_init(&fstorage, &nrf_fstorage_sd, NULL);
     uint8_t msg = 0;
     uint32_t page_num = ((end_addr - start_addr)/PAGE_SIZE); 
@@ -79,6 +81,8 @@ void ota_flash_erase(uint32_t start_addr, uint32_t end_addr){
     wait_for_flash_ready(&fstorage);
     ret = nrf_fstorage_erase(&fstorage, start_addr, page_num, &msg);
     wait_for_flash_ready(&fstorage);
+
+    return ret;
 }
 
 void ota_label_clear(){
@@ -99,11 +103,10 @@ void ota_label_read(ota_label_t* label){
 
 uint32_t ota_get_version(void){
   uint32_t value = 0;
-  value = ((uint32_t)OTA_Label.major_v<<16) + ((uint32_t)OTA_Label.minor_v<<8) +  ((uint32_t)OTA_Label.patch);
+  value = (0<<24)+((uint32_t)OTA_Label.major_v<<16) + ((uint32_t)OTA_Label.minor_v<<8) +  ((uint32_t)OTA_Label.patch);
   return value;
 }
 
 uint8_t ota_is_valid(void){
   return OTA_Label.app_is_valid;
 }
-

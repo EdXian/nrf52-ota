@@ -15,9 +15,9 @@
 
 #define label_address (0x4f000)
 #define label_size   (0x1000)
-#define otadata_size (0x20000)
+#define otadata_max_size (0x20000)
 #define otadata_start_address (label_address + label_size)
-#define otadata_end_address (label_address + otadata_size)
+#define otadata_end_address (otadata_start_address + otadata_max_size)
 
 
 #define PAGE_SIZE 4096
@@ -36,7 +36,7 @@ typedef struct ota_control{
   uint16_t write_count;
   uint8_t flag;
   uint8_t write_enable;
-  uint16_t checksum;
+  int8_t checksum;
 }ota_control_t;
 
 typedef enum {
@@ -47,12 +47,30 @@ typedef enum {
 	clearrom_state,
 	flash_state,
         check_version_state,
+        label_state
 }ota_state;
 
 
 typedef enum {
-	ack_is_valid = 0x00,
-	ack_is_invalid = 0x01
+    ack_is_valid = 1,
+    ack_is_invalid = 2,
+    
+    ota_key_pass, 
+    ota_key_fail ,
+
+    ota_start_pass,
+    ota_size_overflow,
+    ota_address_fail,
+    
+    ota_write_pass,
+    ota_write_fail,
+
+    ota_verify_pass,
+    ota_verify_fail,
+
+    ota_clear_pass,
+    ota_clear_fail
+
 }ota_ack_type;
 
 typedef enum{
@@ -122,7 +140,7 @@ typedef  struct ota_key_cmd{
 // 
 uint32_t ota_crc32(uint32_t crc32, uint8_t *buf, uint32_t len);
 uint32_t ota_get_version(void);
-
+//void ota_resposnse_ver(uint32_t ver);
 //write label
 void ota_label_clear();
 void ota_label_write(ota_label_t* label);
@@ -132,8 +150,8 @@ uint8_t ota_check_key(void);
 
 //flash
 ret_code_t ota_flash_init(void);
-void ota_flash_write(uint32_t addr, uint8_t* buffer, uint32_t recv_len);
-void ota_flash_erase(uint32_t start_addr, uint32_t end_addr);
+uint8_t ota_flash_write(uint32_t addr, uint8_t* buffer, uint32_t recv_len);
+uint8_t ota_flash_erase(uint32_t start_addr, uint32_t end_addr);
 static void fstorage_evt_handler(nrf_fstorage_evt_t * p_evt);
 void wait_for_flash_ready(nrf_fstorage_t const * p_fstorage);
 #endif
