@@ -31,7 +31,6 @@
     <ProgramSection alignment="4" load="Yes" runin=".data_run" name=".data" />
     <ProgramSection alignment="4" load="Yes" runin=".tdata_run" name=".tdata" />
     <ProgramSection alignment="4" load="Yes" name=".otalabel" start="$(OTA_LABEL_START)" inputsections="*(SORT(.otalabel*))" address_symbol="__otalabel_start" end_symbol="__otalabel_end" />
-    <ProgramSection alignment="4" load="Yes" name=".otadata" start="$(OTA_DATA_START)" inputsections="*(SORT(.otadata*))" address_symbol="__otadata_start" end_symbol="__otadata_end" />
   </MemorySegment>
  
   <MemorySegment name="RAM1" start="$(RAM_PH_START)" size="$(RAM_PH_SIZE)">

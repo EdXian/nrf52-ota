@@ -1,16 +1,14 @@
 #include "ble_biologue_ota.h"
 
-extern uint8_t* __otalabel;
-extern uint8_t* __otadata;
+//extern uint8_t* __otalabel;
+//extern uint8_t* __otadata;
 NRF_FSTORAGE_DEF(nrf_fstorage_t fstorage) =
 {
     .evt_handler = fstorage_evt_handler,
     .start_addr = otadata_start_address,
     .end_addr   = otadata_end_address,
 };
-
 uint8_t ota_buffer[OTA_BUFFER_SIZE];
-
 static void fstorage_evt_handler(nrf_fstorage_evt_t * p_evt)
 {
     if (p_evt->result != NRF_SUCCESS)
@@ -51,11 +49,12 @@ ret_code_t ota_flash_init(void){
 }
 
 uint8_t*  ota_get_key( void ){
-  return __otalabel;
+  return 0x4f000;
 }
 
 
 uint8_t ota_check_key(void){
+
     uint8_t* key = (uint8_t*)ota_get_key;
     
     return 0;
@@ -108,5 +107,14 @@ uint32_t ota_get_version(void){
 }
 
 uint8_t ota_is_valid(void){
-  return OTA_Label.app_is_valid;
+  return 0;// OTA_Label.app_is_valid;
+}
+
+uint8_t ota_key_passed(uint8_t* s1, uint8_t* p1){
+  for(unsigned int i=0;i<16;i++){
+      if(s1[i] != p1[i]){
+        return 1;
+      }
+  }
+  return 0;
 }

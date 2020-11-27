@@ -626,26 +626,11 @@ SECTIONS
   __otalabel_end =   __otalabel_end__;
   __otalabel_load_end__ = __otalabel_end__;
 
-  . = ASSERT(__otalabel_start__ == __otalabel_end__ || (__otalabel_end__ - __FLASH_segment_start__) <= __FLASH_segment_size__ , "error: .otalabel is too large to fit in FLASH memory segment");
-  . = ASSERT(__tdata_load_end__ <= __otalabel_start__ , "error: section .tdata overlaps absolute placed section .otalabel");
-
-  __otadata_load_start__ = 0x50000;
-  .otadata 0x50000 : AT(0x50000)
-  {
-    __otadata_start__ = .;
-    __otadata_start =   __otadata_start__;
-    *(SORT(.otadata*))
-  }
-  __otadata_end__ = __otadata_start__ + SIZEOF(.otadata);
-  __otadata_size__ = SIZEOF(.otadata);
-  __otadata_end =   __otadata_end__;
-  __otadata_load_end__ = __otadata_end__;
-
-  __FLASH_segment_used_end__ = 0x50000 + SIZEOF(.otadata);
+  __FLASH_segment_used_end__ = 0x4f000 + SIZEOF(.otalabel);
   __FLASH_segment_used_size__ = __FLASH_segment_used_end__ - __FLASH_segment_start__;
 
-  . = ASSERT(__otadata_start__ == __otadata_end__ || (__otadata_end__ - __FLASH_segment_start__) <= __FLASH_segment_size__ , "error: .otadata is too large to fit in FLASH memory segment");
-  . = ASSERT(__otalabel_end__ <= __otadata_start__ , "error: section .otalabel overlaps absolute placed section .otadata");
+  . = ASSERT(__otalabel_start__ == __otalabel_end__ || (__otalabel_end__ - __FLASH_segment_start__) <= __FLASH_segment_size__ , "error: .otalabel is too large to fit in FLASH memory segment");
+  . = ASSERT(__tdata_load_end__ <= __otalabel_start__ , "error: section .tdata overlaps absolute placed section .otalabel");
 
 }
 

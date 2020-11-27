@@ -96,6 +96,15 @@
 #include "sdc.h"                   // Include SDC file
 #include "uart.h"                  // Include UART file
 
+#include "nrf_log.h"
+#include "nrf_log_ctrl.h"
+#include "nrf_log_default_backends.h"
+#include "nrf_crypto.h"
+#include "nrf_crypto_ecc.h"
+#include "nrf_crypto_error.h"
+#include "nrf_crypto_ecdsa.h"
+#include "mem_manager.h"
+
 #define DEVICE_NAME "SMART_SEAT1.3"                  /**< Name of device. Will be included in the advertising data. */
 #define MANUFACTURER_NAME "NordicSemiconductor" /**< Manufacturer. Will be passed to Device Information Service. */
 #define APP_ADV_INTERVAL 300                    /**< The advertising interval (in units of 0.625 ms. This value corresponds to 187.5 ms). */
@@ -105,8 +114,8 @@
 #define APP_BLE_CONN_CFG_TAG 1  /**< A tag identifying the SoftDevice BLE configuration. */
 
 // MTU 137 bytes, payload size is 137-3-4-2 = 128 => 128*(1/256)=0.5
-#define MIN_CONN_INTERVAL MSEC_TO_UNITS(50, UNIT_1_25_MS)  /**< Minimum acceptable connection interval (50 ms). */
-#define MAX_CONN_INTERVAL MSEC_TO_UNITS(100, UNIT_1_25_MS) /**< Maximum acceptable connection interval (100 ms). */
+#define MIN_CONN_INTERVAL MSEC_TO_UNITS(30, UNIT_1_25_MS)  /**< Minimum acceptable connection interval (50 ms). */
+#define MAX_CONN_INTERVAL MSEC_TO_UNITS(70, UNIT_1_25_MS) /**< Maximum acceptable connection interval (100 ms). */
 #define SLAVE_LATENCY 0                                    /**< Slave latency. */
 #define CONN_SUP_TIMEOUT MSEC_TO_UNITS(4000, UNIT_10_MS)   /**< Connection supervisory timeout (4 seconds). */
 
@@ -366,10 +375,13 @@ uint8_t data_compare(uint8_t* data, uint16_t len){
   return 0;
 }
 
+uint8_t ecdsa_verify(void);
 
 uint8_t err_count = 0;
+static int16_t clear_count = 0;
 void ota_update_handle(uint8_t* flag){
     uint8_t ret = 0 ;
+    uint8_t pass = 0;
 	switch (*flag){
               case idle_flag:
               *flag = idle_flag;
@@ -378,15 +390,15 @@ void ota_update_handle(uint8_t* flag){
                       
                       ret = ota_flash_write(start_cmd.addr, ota_buffer, start_cmd.recv_len);
                       m_ota_ctrl.checksum = checksum_error((uint8_t*)start_cmd.addr, start_cmd.recv_len);
-                      
+
                       if( (ret==0) ){
+
                          ota_resposnse_ack(flash_state,ota_write_pass);
-                         printf("write pass\r\n");
+                       
                       }else{
 
                         ota_resposnse_ack(flash_state,ota_write_fail);
-                        printf("write fail\r\n");
-
+                        
                       }
                       
                       *flag = idle_flag;
@@ -394,15 +406,32 @@ void ota_update_handle(uint8_t* flag){
 
               case clear_flag:
                       
+
+                      // erase flash failed some times   CPU is halted when NVMC is cleaning the flash
+                      
+                      
                       ret = ota_flash_erase(clearrom_cmd.start_addr, clearrom_cmd.end_addr);
-                      //nrf_delay_ms(500);
-                      if(ret == 0){
-                        ota_resposnse_ack(clearrom_state,ota_clear_pass);
-                        printf("clear pass \r\n");
-                      }else{
-                        
+                  
+                      //we should check the memory is reset to 0xff 
+                      nrf_delay_ms(400);
+
+                      uint32_t data = *((uint32_t*)clearrom_cmd.start_addr);
+                      
+                      if( data != EMPTY_DATA )
+                      {
                         ota_resposnse_ack(clearrom_state,ota_clear_fail);
-                        printf("clear fail\r\n");
+                        printf("not erase\r\n");
+                        break;
+                      }
+                      
+                      if( (ret == 0)  && (data == EMPTY_DATA) ){
+                        ota_resposnse_ack(clearrom_state,ota_clear_pass);
+                        printf("cp %d\r\n",clear_count);
+                      }else if( (ret == 0) && (data!=EMPTY_DATA)){
+                        ota_resposnse_ack(clearrom_state,ota_clear_fail);
+                        printf("cf %d\r\n",clear_count);
+                      }else{
+                        printf("ce %d\r\n",clear_count);
                       }
                       
                       *flag = idle_flag;
@@ -418,9 +447,28 @@ void ota_update_handle(uint8_t* flag){
               
               case verify_flag:
                        
-
-
                       break;
+
+              case key_flag:
+                    nrf_drv_timer_disable(&TIMER_ADC);  //disable timer
+                    clear_count++;
+                    pass = ecdsa_verify();
+                    
+                    if(pass == 1){
+                      ota_resposnse_ack(key_state,ota_key_fail);
+                      m_ota_ctrl.key_pass  = 1;
+                    }else if(pass == 0){
+                      ota_resposnse_ack(key_state,ota_key_pass);
+                      m_ota_ctrl.key_pass  = 0;
+                      printf("k %d\r\n",clear_count);
+                    }else{
+                      ota_resposnse_ack(key_state,10);
+                    }
+                    
+                    memset(&key_cmd,0,sizeof(key_cmd));
+                    *flag = idle_flag;
+                      break;
+
               case burn_flag:
                       
                     //update mcu here
@@ -429,6 +477,8 @@ void ota_update_handle(uint8_t* flag){
                       break;
       }
 }
+
+
 
 static void ota_data_handler(ble_nus_evt_t * p_evt)
 {
@@ -444,29 +494,36 @@ static void ota_data_handler(ble_nus_evt_t * p_evt)
       switch (head){
               case key_state:
                     tmp = (uint32_t*)&p_evt->params.rx_data.p_data[0];
-                    key_cmd = *(ota_key_cmd_t*)tmp;
-                    //compare key
-                    if(1){
-                       ota_resposnse_ack(key_state,ota_key_pass);
-                    }else{
-                      ota_resposnse_ack(key_state,ota_key_fail);
-                    }
-
-
-                   
-                    //printf("key_state\r\n");
+                    //key_cmd = *(ota_key_cmd_t*)tmp;                 
+                    memcpy(&key_cmd, tmp, sizeof(key_cmd));
                     
+                    m_ota_ctrl.flag = key_flag;
                     break;
-              case start_state:						
-                     
+
+              case start_state:
+                                                              
                     tmp = (uint32_t*)&p_evt->params.rx_data.p_data[0];
                     start_cmd = *(ota_start_cmd_t*)tmp;
-                    
                     memset(ota_buffer , 0 , OTA_BUFFER_SIZE);    //clear ota tmp buffer
-                    
                     m_ota_ctrl.write_count = 0x00;
                     m_ota_ctrl.checksum =  0 ;
-                    //check size
+                    
+
+                    //checking flash is empty
+                    if((*(uint32_t*)start_cmd.addr) != EMPTY_DATA){
+                       //ota_resposnse_ack(start_state,ota_flash_noempty);
+                       printf("not empty\r\n");
+                       m_ota_ctrl.flag = clear_flag;  //reset the flash
+                       break;
+                    };
+
+
+                    if(m_ota_ctrl.key_pass == 1){       //ota_key_fail
+                      ota_resposnse_ack(start_state,ota_key_fail);
+                      break;
+                    }
+
+                    //check size and write address
                     if(  (start_cmd.recv_len < otadata_max_size)  || 
                           ((start_cmd.addr)>=otadata_start_address && (start_cmd.addr)<otadata_end_address)
                       ){
@@ -480,10 +537,8 @@ static void ota_data_handler(ble_nus_evt_t * p_evt)
                       }else{
                         ota_resposnse_ack(start_state,ota_address_fail);
                       }
-                      
                       m_ota_ctrl.write_enable = false;
                       m_ota_ctrl.flag = idle_flag;
-
                    }
                   
                     //printf("start_state\r\n");
@@ -495,29 +550,41 @@ static void ota_data_handler(ble_nus_evt_t * p_evt)
                     tmp = (uint32_t*)&p_evt->params.rx_data.p_data[0];
                     tmp8_t = (uint8_t*)&p_evt->params.rx_data.p_data[2];
                     write_cmd = *(ota_write_cmd_t*)tmp;
-                    if( m_ota_ctrl.write_count < OTA_BUFFER_SIZE ){
-                      memcpy(&ota_buffer[m_ota_ctrl.write_count], tmp8_t, write_cmd.len);
-                     
-                    }
                     
-                    m_ota_ctrl.write_count += write_cmd.len;
-                    ota_resposnse_ack(write_state,ota_write_pass);
-                    m_ota_ctrl.state = write_state;
+
+                    if(m_ota_ctrl.key_pass == 1){       //ota_key_fail
+                      ota_resposnse_ack(key_state,ota_key_fail);
+                      break;
+                    }
+
+                    if(m_ota_ctrl.write_enable){
+                      if( m_ota_ctrl.write_count < OTA_BUFFER_SIZE ){
+                        memcpy(&ota_buffer[m_ota_ctrl.write_count], tmp8_t, write_cmd.len);
+                      }
+                      m_ota_ctrl.write_count += write_cmd.len;
+                      ota_resposnse_ack(write_state,ota_write_pass);
+                      m_ota_ctrl.state = write_state;
+                    }else{
+                        ota_resposnse_ack(write_state,ota_write_fail);
+                    }
 
                     //printf("write_state\r\n");
-                    //if(m_ota_ctrl.write_enable){
-                      
-                    
-
-                    //}else{
-
-                    //    ota_resposnse_ack(write_state,ack_is_invalid);
-                    //}
                   break;
                       
               case flash_state:
                       
+                    if(m_ota_ctrl.key_pass == 1){       //ota_key_fail
+                      
+                      ota_resposnse_ack(key_state,ota_key_fail);
+                      break;
+
+                    }else{
+                    
                       m_ota_ctrl.flag = flash_flag;
+                    }
+
+
+                      
                       //printf("flash_state\r\n");
                       break;
               
@@ -525,29 +592,33 @@ static void ota_data_handler(ble_nus_evt_t * p_evt)
                       
                       tmp = (uint32_t*)&p_evt->params.rx_data.p_data[0];
                       verify_cmd = *(ota_verify_cmd_t*)tmp;						
-                      
                       m_ota_ctrl.state = verify_state;
                       m_ota_ctrl.flag = verify_flag;
 
+                      if(m_ota_ctrl.key_pass == 1){       //ota_key_fail
+                        ota_resposnse_ack(key_state,ota_key_fail);
+                        break;
+                      }  
+                         
                       //use checksum to verify flash
                       if(m_ota_ctrl.checksum == verify_cmd.crc_value){
                         ota_resposnse_ack(verify_state,ota_verify_pass);
                        // printf("verify pass\r\n");
                       }else{
                         ota_resposnse_ack(verify_state,ota_verify_fail);
-                       //  printf("verify failed\r\n");
+                         printf("page failed\r\n");
                       }
-
                       break;
               
              case clearrom_state:  // clear rom
                       
-                    m_ota_ctrl.flag = clear_flag;
+
+                    
                     tmp = (uint32_t*)&p_evt->params.rx_data.p_data[0];
                     clearrom_cmd = *(ota_clearrom_cmd_t*)tmp;
-                    //ota_resposnse_ack(clearrom_state,ack_is_valid);
-                    m_ota_ctrl.state = clearrom_state;
-                    //printf("clear_state\r\n");
+                    m_ota_ctrl.flag = clear_flag;
+
+                   
                     break;
 
               case check_version_state:
@@ -906,15 +977,96 @@ static void biologue_services_init(void) {
     APP_ERROR_CHECK(err_code);
 }
 
-/**@brief Function for application main entry.
- */
+static size_t m_signature_size;
+static nrf_crypto_ecdsa_secp256r1_signature_t m_signature;
+
+//encoding message by SHA256
+static uint8_t m_hash[32] =
+{
+    0x07,0xf0,0x2a,0x70,0xa1,0xbe,0x9a,0x0e,
+    0x52,0x04,0x12,0xbf,0xe9,0x0c,0x10,0xc0,
+    0x96,0x98,0x8f,0x52,0x0b,0xbd,0x27,0xb1,
+    0x24,0xd1,0x15,0xa0,0xed,0xd5,0x1f,0x63,
+};
+
+//static const uint8_t m_alice_raw_private_key[32] =
+//{
+// 0x9e,  0x97,  0xf7,  0x3d,  0x15,  0x7b,  0x38,  0x4, 
+// 0x41,  0xfc,  0x69,  0x41,  0x29,  0x34,  0x77,  0x9c, 
+// 0x6b,  0x46,  0xae,  0x4a,  0x37,  0xe,  0xec,  0x91, 
+// 0xd7,  0x3a,  0x51,  0x5a,  0x0,  0x6d,  0x0,  0xf4, 
+
+//};
+
+static const uint8_t raw_public_key[64] =
+{
+ 0x6d,  0x5e,  0xa,  0x21,  0x7a,  0xc1,  0xa4,  0xfc, 
+ 0x48,  0x3,  0xb8,  0x7c,  0xf8,  0x27,  0x47,  0xf4, 
+ 0xa9,  0xe7,  0xb4,  0xa,  0x5a,  0xd0,  0x51,  0x2, 
+ 0xb2,  0xec,  0x65,  0xc6,  0xce,  0xaa,  0x7e,  0x1, 
+ 0x24,  0x88,  0xb,  0x4b,  0xdd,  0x44,  0xaf,  0x5, 
+ 0x6a,  0xb1,  0x97,  0x7b,  0xc2,  0x71,  0xca,  0x17, 
+ 0x4,  0xc1,  0xc7,  0xfb,  0x17,  0x99,  0x2a,  0xd, 
+ 0x35,  0xd6,  0x63,  0x85,  0xd6,  0xa1,  0xd9,  0xbc,
+ };
+
+nrf_crypto_ecc_key_pair_generate_context_t  keygen_context;
+nrf_crypto_ecc_secp256r1_private_key_t      private_key;
+nrf_crypto_ecc_secp256r1_public_key_t       public_key;
+
+uint8_t ecdsa_verify(void)
+{
+   // static nrf_crypto_ecc_public_key_t alice_public_key;
+    ret_code_t                         err_code = NRF_SUCCESS;
+    uint8_t state;
+
+    err_code = nrf_crypto_ecc_public_key_from_raw(&g_nrf_crypto_ecc_secp256r1_curve_info,
+                                                  &public_key,
+                                                  raw_public_key,
+                                                  sizeof(raw_public_key));
+    
+    memcpy(m_signature, &key_cmd.key[0], 64); //copy signature from ble packet
+    m_signature_size = sizeof(m_signature);
+
+    err_code = nrf_crypto_ecdsa_verify(NULL,
+                                       &public_key,
+                                       m_hash,
+                                       sizeof(m_hash),
+                                       m_signature,
+                                       m_signature_size);
+
+    if (err_code == NRF_SUCCESS)
+    {
+        state = 0;
+        printf("ecdsa pass\r\n");
+    }
+    else if (err_code == NRF_ERROR_CRYPTO_ECDSA_INVALID_SIGNATURE)
+    {
+       state = 1;
+       printf("ecdsa fail\r\n");
+    }
+    else
+    {
+      state =2;
+      printf("ecdsa error\r\n");
+    }
+ 
+     err_code = nrf_crypto_ecc_public_key_free(&public_key);
+     return  state;
+}
 
 
 int main(void) {  
   bool erase_bonds = false;
-  // Initialize.
+  ret_code_t err_code = NRF_SUCCESS;
+
   log_init();
   power_management_init();
+  init_uart();
+
+  err_code = nrf_mem_init();
+  err_code = nrf_crypto_init();
+
   ble_stack_init();
   gap_params_init();
   gatt_init();
@@ -925,27 +1077,39 @@ int main(void) {
   peer_manager_init();
   timers_init();
   init_rtc();
-  init_uart();
   //fatfs_example ();
   ad8232.init();
   ads1018.init();
   ota_flash_init();
- // Start execution.
-  //NRF_LOG_INFO("Template example started. %p", &__otadata);
-  NRF_LOG_INFO("GAP Length: %d", NRF_SDH_BLE_GAP_DATA_LENGTH);
-  NRF_LOG_INFO("GATT MTU: %d", NRF_SDH_BLE_GATT_MAX_MTU_SIZE);
+
+//  NRF_LOG_INFO("GAP Length: %d", NRF_SDH_BLE_GAP_DATA_LENGTH);
+//  NRF_LOG_INFO("GATT MTU: %d", NRF_SDH_BLE_GATT_MAX_MTU_SIZE);
+
+  
+
+   
 
   advertising_start(erase_bonds);
   application_timers_start();
-  
-  //ota_flash_erase(0x50000,0x52000);
-  //nrf_delay_ms(500);
 
   for (;;) {
-    //idle_state_handle();
+
     ota_update_handle(&(m_ota_ctrl.flag));
+    
+    //printf("\r\n=signature=\r\n");
+    //nrf_delay_ms(10);
+    //for (uint16_t i=0;i<64;i++){
+    //    if(i!=0 && i%8==0){
+    //      printf("\n");         
+    //    }
+    //    printf("0x%x,", m_signature[i]);
+    //     //nrf_delay_ms(10);
+    //}
+
+
   }
 }
+
 
 
 void HardFault_Handler(void) {
