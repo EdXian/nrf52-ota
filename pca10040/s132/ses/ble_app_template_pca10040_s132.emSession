@@ -1,15 +1,13 @@
 <!DOCTYPE CrossStudio_Session_File>
 <session>
  <Bookmarks/>
- <Breakpoints groups="Breakpoints" active_group="Breakpoints">
-  <Exceptions set="MemManage;UsageFault_Coprocessor;UsageFault_CheckingError;UsageFault_StateError;BusFault;ExceptionEntryReturnFault;HardFault"/>
- </Breakpoints>
+ <Breakpoints groups="Breakpoints" active_group="Breakpoints"/>
  <ExecutionProfileWindow/>
  <FrameBufferWindow>
   <FrameBufferWindow bufferHeight="-1" addressSpace="" addressText="" bufferWidth="-1"/>
  </FrameBufferWindow>
  <Memory1>
-  <MemoryWindow addressSpace="" dataSize="1" autoEvaluate="0" viewMode="0" addressOrder="0" columnsText="" refreshPeriod="0" name="ble_app_template_pca10040_s132" radix="16" sizeText="sizeof otakey" addressText="0x5DF80"/>
+  <MemoryWindow addressSpace="" dataSize="1" autoEvaluate="0" viewMode="0" addressOrder="0" columnsText="" refreshPeriod="0" name="ble_app_template_pca10040_s132" radix="16" sizeText="sizeof otakey" addressText="0x52780"/>
  </Memory1>
  <Memory2>
   <MemoryWindow addressSpace="" dataSize="1" autoEvaluate="0" viewMode="0" addressOrder="0" columnsText="" refreshPeriod="0" name="ble_app_template_pca10040_s132" radix="16" sizeText="" addressText="0x200074C0"/>
@@ -47,21 +45,21 @@
  </TraceWindow>
  <Watch1>
   <Watches active="1" update="Never">
-   <Watchpoint expression="__bss_start__" name="__bss_start__" radix="-1" linenumber="939" filename="../../../main.c"/>
-   <Watchpoint expression="__ota_start__" name="__ota_start__" radix="16" linenumber="939" filename="../../../main.c"/>
-   <Watchpoint expression="__exidx_start" name="__exidx_start" radix="-1" linenumber="939" filename="../../../main.c"/>
-   <Watchpoint expression="__otadata" name="__otadata" radix="-1" linenumber="939" filename="../../../main.c"/>
-   <Watchpoint expression="key" name="key" radix="16" linenumber="939" filename="../../../main.c"/>
-   <Watchpoint expression="otakey" name="otakey" radix="16" linenumber="939" filename="../../../main.c"/>
+   <Watchpoint expression="__bss_start__" name="__bss_start__" radix="-1" linenumber="947" filename="../../../main.c"/>
+   <Watchpoint expression="__ota_start__" name="__ota_start__" radix="16" linenumber="947" filename="../../../main.c"/>
+   <Watchpoint expression="__exidx_start" name="__exidx_start" radix="-1" linenumber="947" filename="../../../main.c"/>
+   <Watchpoint expression="__otadata" name="__otadata" radix="-1" linenumber="947" filename="../../../main.c"/>
+   <Watchpoint expression="key" name="key" radix="16" linenumber="947" filename="../../../main.c"/>
+   <Watchpoint expression="otakey" name="otakey" radix="16" linenumber="947" filename="../../../main.c"/>
    <Watchpoint expression="m_ota_ctrl" name="m_ota_ctrl" radix="-1" linenumber="339" filename="../../../main.c"/>
-   <Watchpoint expression="key_cmd" name="key_cmd" radix="-1" linenumber="465" filename="../../../main.c"/>
-   <Watchpoint expression="ota_buffer" name="ota_buffer" radix="-1" linenumber="527" filename="../../../main.c"/>
-   <Watchpoint expression="clearrom_cmd" name="clearrom_cmd" radix="-1" linenumber="583" filename="../../../main.c"/>
-   <Watchpoint expression="OTA_Label" name="OTA_Label" radix="-1" linenumber="466" filename="../../../main.c"/>
-   <Watchpoint expression="private_key" name="private_key" radix="-1" linenumber="1100" filename="../../../main.c"/>
-   <Watchpoint expression="public_key" name="public_key" radix="-1" linenumber="1101" filename="../../../main.c"/>
-   <Watchpoint expression="err_code" name="err_code" radix="-1" linenumber="1094" filename="../../../main.c"/>
-   <Watchpoint expression="m_signature" name="m_signature" radix="-1" linenumber="1108" filename="../../../main.c"/>
+   <Watchpoint expression="key_cmd" name="key_cmd" radix="-1" linenumber="473" filename="../../../main.c"/>
+   <Watchpoint expression="ota_buffer" name="ota_buffer" radix="-1" linenumber="544" filename="../../../main.c"/>
+   <Watchpoint expression="clearrom_cmd" name="clearrom_cmd" radix="-1" linenumber="600" filename="../../../main.c"/>
+   <Watchpoint expression="OTA_Label" name="OTA_Label" radix="-1" linenumber="474" filename="../../../main.c"/>
+   <Watchpoint expression="private_key" name="private_key" radix="-1" linenumber="1059" filename="../../../main.c"/>
+   <Watchpoint expression="public_key" name="public_key" radix="-1" linenumber="1060" filename="../../../main.c"/>
+   <Watchpoint expression="err_code" name="err_code" radix="-1" linenumber="1055" filename="../../../main.c"/>
+   <Watchpoint expression="m_signature" name="m_signature" radix="-1" linenumber="1067" filename="../../../main.c"/>
   </Watches>
  </Watch1>
  <Watch2>
@@ -74,27 +72,26 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="1099" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../main.c" selected="0" top="1088" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="1" y="133" useTextEdit="1" openedFrom="D:/nRF5SDK1702d674dd/nRF5_SDK_17.0.2_d674dde/examples/ble_peripheral/ble_app_sensor_collector/main.c" useBinaryEdit="0" left="0" path="ble_biologue_ota.h" selected="0" top="116" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="112" useTextEdit="1" openedFrom="D:/nRF5SDK1702d674dd/nRF5_SDK_17.0.2_d674dde/examples/ble_peripheral/ble_app_sensor_collector/main.c" useBinaryEdit="0" left="0" path="ble_biologue_ota.c" selected="0" top="93" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="1021" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../main.c" selected="1" top="1002" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="21" y="153" useTextEdit="1" openedFrom="D:/nRF5SDK1702d674dd/nRF5_SDK_17.0.2_d674dde/examples/ble_peripheral/ble_app_sensor_collector/main.c" useBinaryEdit="0" left="0" path="ble_biologue_ota.h" selected="0" top="143" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="54" useTextEdit="1" openedFrom="D:/nRF5SDK1702d674dd/nRF5_SDK_17.0.2_d674dde/examples/ble_peripheral/ble_app_sensor_collector/pca10040/s132/ses/ble_biologue_ota.h" useBinaryEdit="0" left="0" path="ble_biologue_ota.c" selected="0" top="0" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="458" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../modules/nrfx/hal/nrf_uarte.h" selected="0" top="434" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="51" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="sdc.c" selected="0" top="60" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="244" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/uart/app_uart_fifo.c" selected="0" top="204" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="14" y="41" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/uart/app_uart_fifo.c" selected="0" top="30" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="405" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../modules/nrfx/mdk/ses_startup_nrf52.s" selected="0" top="0" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="144" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../modules/nrfx/mdk/nrf_common.ld" selected="0" top="126" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="34" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="flash_placement.xml" selected="0" top="6" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="99" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/util/app_error_weak.c" selected="0" top="78" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="45" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/crc16/crc16.c" selected="0" top="39" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="7551" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../config/sdk_config.h" selected="0" top="7518" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="8" y="6967" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../config/sdk_config.h" selected="0" top="6949" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="20" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="uart.h" selected="0" top="0" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="486" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../../../../modules/nrfx/drivers/src/nrfx_spim.c" selected="0" top="464" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="0" openedFrom="" useBinaryEdit="0" left="0" path="Output/Debug/Exe/ble_app_template_pca10040_s132.elf" selected="0" top="0" codecName=""/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="26" y="1073" useTextEdit="1" openedFrom="D:/nRF5SDK1702d674dd/nRF5_SDK_17.0.2_d674dde/examples/ble_peripheral/ble_app_sensor_collector/main.c" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/crypto/nrf_crypto_ecc.c" selected="0" top="1061" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="633" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="Output/Debug/Obj/ble_app_template_pca10040_s132/ble_app_template_pca10040_s132.ld" selected="0" top="626" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="98" y="103" useTextEdit="1" openedFrom="D:/nRF5SDK1702d674dd/nRF5_SDK_17.0.2_d674dde/examples/ble_peripheral/ble_app_sensor_collector/main.c" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/crypto/nrf_crypto_ecdsa.h" selected="0" top="86" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="11" y="397" useTextEdit="1" openedFrom="D:/nRF5SDK1702d674dd/nRF5_SDK_17.0.2_d674dde/examples/ble_peripheral/ble_app_sensor_collector/main.c" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/crypto/nrf_crypto_ecdsa.c" selected="0" top="382" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="883" useTextEdit="1" openedFrom="D:/nRF5SDK1702d674dd/nRF5_SDK_17.0.2_d674dde/examples/ble_peripheral/ble_app_sensor_collector/main.c" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/crypto/nrf_crypto_ecc.c" selected="0" top="859" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="449" useTextEdit="1" openedFrom="D:/nRF5SDK1702d674dd/nRF5_SDK_17.0.2_d674dde/examples/ble_peripheral/ble_app_sensor_collector/main.c" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/crypto/nrf_crypto_ecc.h" selected="0" top="428" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="107" useTextEdit="1" openedFrom="D:/nRF5SDK1702d674dd/nRF5_SDK_17.0.2_d674dde/examples/ble_peripheral/ble_app_sensor_collector/main.c" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/crypto/backend/oberon/oberon_backend_ecc.c" selected="0" top="84" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="103" useTextEdit="1" openedFrom="D:/nRF5SDK1702d674dd/nRF5_SDK_17.0.2_d674dde/examples/ble_peripheral/ble_app_sensor_collector/main.c" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/crypto/nrf_crypto_ecdsa.h" selected="0" top="86" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="397" useTextEdit="1" openedFrom="D:/nRF5SDK1702d674dd/nRF5_SDK_17.0.2_d674dde/examples/ble_peripheral/ble_app_sensor_collector/main.c" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/crypto/nrf_crypto_ecdsa.c" selected="0" top="382" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="792" useTextEdit="1" openedFrom="D:/nRF5SDK1702d674dd/nRF5_SDK_17.0.2_d674dde/components/libraries/crypto/nrf_crypto_ecc.c" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/crypto/nrf_crypto_ecc.h" selected="0" top="781" codecName="Default"/>
  </Files>
  <ARMCrossStudioWindow activeProject="ble_app_template_pca10040_s132" fileDialogDefaultFilter="*.c;*.cpp;*.cxx;*.cc;*.h;*.hpp;*.hxx" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="D:/nRF5SDK1702d674dd/nRF5_SDK_17.0.2_d674dde/components/ble/ble_services/ble_nus" debugSearchPath="" autoConnectCapabilities="3711"/>
 </session>
